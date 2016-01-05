@@ -15,7 +15,7 @@ from ansible.callbacks import display
 from ansible.color import ANSIBLE_COLOR
 import os
 from collections import OrderedDict
-
+import threading
 
 #_inventory_file = 'operation_scripts/inventory'
 inventory_source = 'operation_scripts/inv.py'
@@ -38,6 +38,11 @@ def get_inventory_info(inv_file=inventory_source):
         ret_dict[grp.name] = host_list
 
     return ret_dict
+
+def async_run_playbook(pb):
+    # 将需要长时间执行的任务线程化
+    t = threading.Thread(target=pb.run_task)
+    t.start()
 
 class OpPlaybook:
     """对ansible.playbook进行简单包装
@@ -127,7 +132,7 @@ def PlayBookFactory(t, only_tags=None, skip_tags=None,
     """
     playbook_files = {
             "compile": "op/compile.yml",
-            "production": "../../op/production.yml",
+            "production": "op/production.yml",
             "database": "op/database.yml",
             "webserver": "op/webserver.yml",
             "release": "op/release.yml"
@@ -140,9 +145,11 @@ def PlayBookFactory(t, only_tags=None, skip_tags=None,
             "release": u"发布"
             }
 
-    if subset.lower() == 'all':
+    if subset and subset.lower() == 'all':
         subset = None
 
+    print(os.getcwd())
+    print(inventory)
     ret = None
     t = t.lower()
     if t in playbook_files:
