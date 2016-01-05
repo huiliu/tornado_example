@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flasknado!</title>
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+    function createGuid()
+    {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
+        function(c) {
+            var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
+            return v.toString(16);
+        });
+    }
+        
+    /* Client-side component for the Flasknado! demo application. */
+    
+    var socket = null;
+    $(document).ready(function() {
+        socket = new WebSocket("ws://" + document.domain + ":8080/websocket/?Id=" + createGuid());
+    
+        socket.onopen = function() {
+        socket.send("Joined");
+        }
+    
+        socket.onmessage = function(message) {
+        var txt = message.data;
+        $(".container").append("<p>" + txt + "</p>");
+        }
+    });
+    
+    function submit() {
+        var text = $("input#message").val();
+        socket.send(text);
+        $("input#message").val('');
+    }
+    </script>
+  </head>
+  <body>
+    <h1>Flasknado!</h1>
+    <div class="container">
+      <p>Send a message:</p>
+      <input id="message" type="text">
+      <button id="submit" type="button" onclick="submit()">Submit</button>
+      <p>Messages received:</p>
+    </div>
+  </body>
+</html>

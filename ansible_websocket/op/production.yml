@@ -1,0 +1,22 @@
+---
+# 部署产品
+#
+#- hosts: database
+#  vars:
+#       data_dir: /var/lib/mysql       
+#       master_server_id: 2
+#       db_name: wyft
+#       db_init_file: "" # 初始化SQL文件 initial_data_file.sql
+#       new_db_username: viivgame
+#       new_db_password: viivgame
+#       allow_host: 10.1.%.%
+#  roles:
+#     - common
+#     - database
+#     - datamaster
+
+- hosts: production
+  remote_user: root
+  tasks:
+    - name: test ping
+      command: /bin/sleep 15
